@@ -9,7 +9,16 @@ def get_db():
     """Get MongoDB database connection"""
     global _client, _db
     if _db is None:
-        _client = MongoClient(settings.MONGODB_URI)
+        _client = MongoClient(
+            settings.MONGODB_URI,
+            serverSelectionTimeoutMS=5000,
+            connectTimeoutMS=10000,
+            socketTimeoutMS=10000,
+            maxPoolSize=10,
+            retryWrites=True
+        )
+        # Test connection
+        _client.admin.command('ping')
         _db = _client[settings.MONGODB_NAME]
         _setup_indexes()
     return _db
